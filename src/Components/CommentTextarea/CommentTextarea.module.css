@@ -1,0 +1,35 @@
+.PostCommentBox{
+    width:100%;
+    box-sizing: border-box;
+    resize: vertical;
+    height: auto;
+    font-size: 18px;
+    border: #000a12 solid 1px;
+    box-shadow: 0px 0px 4px 0 rgba(0,0,0,0.2);
+    padding: 15px 15px 30px 15px;
+    font-family: Microsoft JhengHei;
+}
+
+.Invalid {
+    box-shadow: 0px 0px 5px 0 rgba(255,0,0,0.8);
+}
+
+.Remark {
+    color: #4f5b62;
+    font-size: small;
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    margin: 0;
+}
+
+.Remark a{
+    text-decoration: underline;
+}
+
+.PreviewBox {
+    padding: 15px;
+    box-shadow: 0px 0px 4px 0 rgba(0,0,0,0.2);
+    margin: 15px 0;
+    white-space: pre-wrap;
+}

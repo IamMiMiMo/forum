@@ -1,0 +1,26 @@
+.Button {
+    padding: 10px 20px;
+    display: inline-block;
+    border-radius: 5px;
+    margin: 2px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.Success {
+    background-color: #00bfa5;
+    color: white;
+}
+
+.Success:hover{
+    background-color: #008e76;
+}
+
+.Warning {
+    background-color: #ffab00;
+    color: white;
+}
+
+.Warning:hover {
+    background-color: #c67c00;
+}

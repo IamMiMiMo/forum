@@ -1,0 +1,25 @@
+.Alert {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 0px 20px;
+    min-width: 20%;
+    z-index: 100;
+    box-shadow: 0px 0px 4px 0 rgba(0,0,0,0.2);
+}
+
+.Alert p {
+    text-align: center;
+}
+
+.Success {
+    background-color: white;
+    color: #00bfa5;
+    border-left: #00bfa5 5px solid
+}
+
+.Danger {
+    border-left: #ff1744 5px solid;
+    background-color: white;
+    color: #ff1744;
+}

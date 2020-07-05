@@ -1,0 +1,9 @@
+.AuthForm {
+    padding: 15px;
+    max-width: 640px;
+    margin: auto;
+}
+
+.Switch {
+    cursor: pointer;
+}

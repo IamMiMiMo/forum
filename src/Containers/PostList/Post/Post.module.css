@@ -1,0 +1,29 @@
+.PostBody{
+    max-width: 1140px;
+    margin: auto;
+    font-size: 18px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.PostCommentBox{
+    width:100%;
+    box-sizing: border-box;
+    resize: none;
+    height: 150px;
+    font-size: 18px;
+    border:none;
+    box-shadow: 0px 0px 4px 0 rgba(0,0,0,0.2);
+    padding: 15px;
+    font-family: Microsoft JhengHei;
+}
+
+.Invalid {
+    box-shadow: 0px 0px 5px 0 rgba(255,0,0,0.8);
+}
+
+@media only screen and (max-width: 1140px) {
+    .PostBody {
+        margin: 0 15px;
+    }
+  }
