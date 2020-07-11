@@ -5,7 +5,8 @@ import 'firebase/firebase-database';
 import 'firebase/auth';
 import moment from 'moment';
 import { convertToRaw, EditorState, ContentState, Modifier, Editor, ContentBlock, genKey, convertFromRaw } from 'draft-js';
-import { draftToMarkdown, markdownToDraft } from 'markdown-draft-js';
+import { markdownToDraft } from 'markdown-draft-js';
+import draftToMarkdown from 'draftjs-to-markdown'
 
 import '../../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import Comments from '../../../Components/Comments/Comments';
@@ -211,7 +212,7 @@ const Post = (props) => {
             rawObject.blocks.push(formattedText.blocks[0])
             let newContentState = convertFromRaw(rawObject)
 
-            setEditorState(EditorState.push(editorState, newContentState,'insert-fragment'))
+            setEditorState(EditorState.push(editorState, newContentState, 'insert-fragment'))
             setEditorState(EditorState.moveSelectionToEnd(editorState))
         }
 
@@ -228,6 +229,7 @@ const Post = (props) => {
 
     const onEditorStateChange = (es) => {
         setEditorState(es);
+        console.log((es.getCurrentContent()))
         setCurrentText(draftToMarkdown(convertToRaw(es.getCurrentContent())));
     }
 
