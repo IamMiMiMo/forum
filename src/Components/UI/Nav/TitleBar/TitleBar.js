@@ -1,12 +1,13 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import SideDrawer from '../SideDrawer/SideDrawer'
 
 import classes from './TitleBar.module.css';
 
 const titleBar = (props) => {
-
     //receive left & right : [{icon: iconName1, onClick: action1}, {icon: iconName2, onClick: action2}...]
+
     let largerArray = props.right;
     let smallerArray = props.left
     if (Object.keys(props.left) > Object.keys(props.right)) { // check which larger
@@ -51,20 +52,8 @@ const titleBar = (props) => {
                     <div id="rightIconBar">{rightIconRendered}</div>
                 </div>
             </div>
-            {/* <div className={classes.Placeholder}></div> */}
+            {<SideDrawer show={props.sideDrawerShow} onClose={props.sideDrawerOnClose} />}
         </React.Fragment>
     )
 }
-// const scrollFunction = () => {
-//     if (document.getElementById("titleBar")) {
-//         if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
-//             document.getElementById("titleBar").style.fontSize = "1rem";
-//         } else {
-//             document.getElementById("titleBar").style.fontSize = "1.25rem";
-//         }
-//     }
-// }
-
-// window.onscroll = scrollFunction;
-
 export default titleBar;

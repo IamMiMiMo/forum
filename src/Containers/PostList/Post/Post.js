@@ -7,7 +7,7 @@ import moment from 'moment';
 
 import Comments from '../../../Components/Comments/Comments';
 import classes from './Post.module.css';
-import TitleBar from '../../../Components/UI/TitleBar/TitleBar';
+import TitleBar from '../../../Components/UI/Nav/TitleBar/TitleBar';
 import Alert from '../../../Components/UI/Alert/Alert';
 import Spinner from '../../../Components/UI/Spinner/Spinner';
 import CommentTextarea from '../../../Components/CommentTextarea/CommentTextarea';
@@ -50,7 +50,10 @@ const Post = (props) => {
     useEffect(() => {
         var unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
-                setIsAuth(true)
+                setIsAuth(true);
+                if (!user.emailVerified){
+                    showAlertHandler({type: 'Danger', content: '留言前請先驗証電郵'})
+                }
             } else {
                 setIsAuth(false)
             }
@@ -68,22 +71,25 @@ const Post = (props) => {
     }
 
     var database = firebase.database();
+
+    //get post title
     useEffect(() => {
         database.ref(`posts/postList/${idRef.current}/title`).once('value').then((snapshot) => {
             if (snapshot.exists()) {
                 setTitle(snapshot.val());
             } else {
-                setShowAlert({ show: true, type: 'Danger', content: '發生錯誤：無法讀取數據' });
+                showAlertHandler({type: 'Danger', content: '發生錯誤：無法讀取數據' });
             }
         });
     }, [database])
 
+    //get post comments
     useEffect(() => {
         database.ref(`posts/postComments/${idRef.current}`).on('value', (snapshot) => {
             if (snapshot.exists()) {
                 setData(snapshot.val());
             } else {
-                setShowAlert({ show: true, type: 'Danger', content: '發生錯誤：無法讀取數據' });
+                showAlertHandler({type: 'Danger', content: '發生錯誤：無法讀取數據' });
             }
         });
     }, [database])
@@ -108,9 +114,9 @@ const Post = (props) => {
                     , (error => {
                         if (error) {
                             console.log(error)
-                            setShowAlert({ show: true, type: 'Danger', content: '發生錯誤：' + error });
+                            showAlertHandler({ type: 'Danger', code: error.code });
                         } else {
-                            setShowAlert({ show: true, type: 'Success', content: '已發表' });
+                            showAlertHandler({ type: 'Success', content: '已發表' });
                             setCurrentText('');
                             //prevent submit in preview mode
                             if (document.querySelector("textarea")) {
@@ -138,10 +144,10 @@ const Post = (props) => {
     }
 
     const showAlertHandler = (options) => {
-        setTimeout(() => { setShowAlert({ show: false, type: '', content: '' }) }, 3000);
-        return (
-            <Alert type={options.type}>{options.content}</Alert>
-        )
+        const props = { type: '', content: '', code: '' };
+        options = {...props, ...options};
+        setTimeout(() => { setShowAlert({ show: false, type: '', content: '', code: '' }) }, 3000);
+        setShowAlert({ show: true, type: options.type, content: options.content, code: options.code })
     }
 
     const onPreviewHandler = () => {
@@ -196,7 +202,7 @@ const Post = (props) => {
 
     return (
         <div>
-            {showAlert.show && showAlertHandler(showAlert)}
+            {showAlert.show && <Alert type={showAlert.type} code={showAlert.code}>{showAlert.content}</Alert>}
             <TitleBar left={[{ icon: faArrowLeft, onClick: goBackHandler }]} right={rightIconRendered()}>
                 {title}
             </TitleBar>

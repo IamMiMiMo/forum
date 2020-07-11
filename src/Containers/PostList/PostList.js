@@ -7,15 +7,17 @@ import 'firebase/auth';
 import classes from './PostList.module.css';
 
 import PostListItem from '../../Components/PostListItem/PostListItem';
-import TitleBar from '../../Components/UI/TitleBar/TitleBar';
+import TitleBar from '../../Components/UI/Nav/TitleBar/TitleBar';
 import { faPlus, faSignInAlt, faBars, faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
 import { FIREBASE_CONFIG } from '../../constants/firebase';
 import * as PATH from '../../constants/paths';
 import Spinner from '../../Components/UI/Spinner/Spinner';
+import SideDrawer from '../../Components/UI/Nav/SideDrawer/SideDrawer';
 
 const PostList = (props) => {
 
     const [listOfPost, setListOfPost] = useState({});
+    const [showSideDrawer, setShowSideDrawer] = useState(false);
     const history = useHistory();
     const match = useRouteMatch();
     const postArray = [];
@@ -29,7 +31,6 @@ const PostList = (props) => {
     const auth = firebase.auth();
     const [isAuth, setIsAuth] = useState(auth.currentUser !== null);
 
-    //check auth state change
     useEffect(() => {
         var unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
@@ -48,14 +49,14 @@ const PostList = (props) => {
         }).catch((error) => {
             console.log(error)
         });
-    }
+    };
 
     useEffect(() => {
         var listOfPostRef = database.ref('posts/postList');
         listOfPostRef.on('value', function (snapshot) {//set up listener
             if (snapshot.exists()) {
                 setListOfPost(snapshot.val());
-            }else {
+            } else {
                 console.log("no post")
             }
         });
@@ -78,16 +79,20 @@ const PostList = (props) => {
     })
 
     let titleBar = <TitleBar
-        left={[{ icon: faBars, onClick: () => history.push(PATH.HOME_PATH) }]}
-        right={[{ icon: faSignInAlt, onClick: () => history.push(PATH.AUTH_PATH) }]}>
+        left={[{ icon: faBars, onClick: () => setShowSideDrawer(!showSideDrawer) }]}
+        right={[{ icon: faSignInAlt, onClick: () => history.push(PATH.AUTH_PATH) }]}
+        sideDrawerShow={showSideDrawer}
+        sideDrawerOnClose={() => setShowSideDrawer(!showSideDrawer)}>
         主頁</TitleBar>
     if (isAuth) {
         titleBar = <TitleBar
-            left={[{ icon: faBars, onClick: () => history.push(PATH.HOME_PATH) }]}
+            left={[{ icon: faBars, onClick: () => setShowSideDrawer(!showSideDrawer) }]}
             right={[
                 { icon: faPlus, onClick: () => history.push(PATH.NEW_POST_PATH) },
                 { icon: faSignOutAlt, onClick: () => signOut() }
-            ]}>
+            ]}
+            sideDrawerShow={showSideDrawer}
+            sideDrawerOnClose={() => setShowSideDrawer(!showSideDrawer)}>
             主頁
         </TitleBar>
     }
@@ -95,13 +100,23 @@ const PostList = (props) => {
     return (
         <React.Fragment>
             {titleBar}
-            <div className={classes.PostList}>
-                {postArray.length > 0 ?
-                    <div className={classes.Posts}>
-                        {posts}
+            <div className={classes.MainContent}>
+                <div className={classes.LeftColumn}>
+                    <div className={classes.PostList}>
+                        {/* {<SideDrawer show={showSideDrawer} onClose={() => setShowSideDrawer(false)} />} */}
+                        {postArray.length > 0 ?
+                            <div className={classes.Posts}>
+                                {posts}
+                            </div>
+                            : <Spinner />}
                     </div>
-                    : <Spinner />}
+                </div>
+                <div className={classes.RightColumn}>
+                    hello moto
+                    <img src="https://dummyimage.com/200x500/000/fff" alt="test"/>
+                </div>
             </div>
+
         </React.Fragment>
     )
 }

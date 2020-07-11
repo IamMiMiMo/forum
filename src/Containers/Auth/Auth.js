@@ -2,10 +2,11 @@ import React, { useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom';
 import * as firebase from 'firebase/app';
 import 'firebase/auth';
+import 'firebase/database';
 
 import Alert from '../../Components/UI/Alert/Alert';
 import AuthForm from '../../Components/AuthForm/AuthForm';
-import TitleBar from '../../Components/UI/TitleBar/TitleBar';
+import TitleBar from '../../Components/UI/Nav/TitleBar/TitleBar';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FIREBASE_CONFIG } from '../../constants/firebase';
 
@@ -30,7 +31,9 @@ const Auth = () => {
         firebase.initializeApp(FIREBASE_CONFIG);
     }
     const auth = firebase.auth();
+    const database = firebase.database();
 
+    //check login ed
     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
         if (user) {
             unsubscribe();
@@ -40,7 +43,6 @@ const Auth = () => {
         }
     });
 
-
     const onChangeAuthHandler = () => {
         setIsRegister(!isRegister);
     }
@@ -49,32 +51,81 @@ const Auth = () => {
         history.goBack();
     }
 
+    const showAlertHandler = (options) => {
+        const props = { type: '', content: '', code: '' };
+        options = {...props, ...options};
+        setTimeout(() => { setShowAlert({ show: false, type: '', content: '', code: '' }) }, 3000);
+        setShowAlert({ show: true, type: options.type, content: options.content, code: options.code })
+    }
+
+    const checkUserName = (uname) => {
+        database.ref('users/usernames/' + uname).once('value')
+            .then(snapshot => {
+                if (snapshot.val()) {
+                    showAlertHandler({ type: 'Danger', content: '用戶名稱已存在'})
+                } else {
+                    console.log('createAccount')
+                    createAccountInAuth(uname);
+                }
+            })
+            .catch(error => {
+                showAlertHandler({ type: 'Danger', code: error.code })
+            })
+
+    }
+
+    const createAccountInAuth = (uname) => {
+        auth.createUserWithEmailAndPassword(email, password).then((result) => {
+            console.log(result.user.uid);
+            result.user.sendEmailVerification(); //send verification email
+            storeAccountDetailInDatabase(result.user.uid, uname)
+
+        }).catch((error) => {
+            showAlertHandler({ type: 'Danger', code: error.code })
+        });
+    }
+
+    const storeAccountDetailInDatabase = (uid, uname) => {
+        database.ref(`users/userlist/${uid}`)
+            .update({
+                username: uname
+            }, (error => {
+                if (error) {
+                    showAlertHandler({ type: 'Danger', content: error.code });
+                } else {
+                    database.ref('users/usernames')
+                        .update({
+                            [uname]: uid
+                        }).then(() => {
+                            console.log(auth.currentUser.displayName)
+                            auth.currentUser.updateProfile({
+                                displayName: uname //set display name in auth
+                            }).then(() => {
+                                history.goBack()
+                            }).catch((error) => {
+                                showAlertHandler({ type: 'Danger', content: error.code })
+                            })
+                        }).catch(error => {
+                            if (error) {
+                                showAlertHandler({ type: 'Danger', content: error.code });
+                            }
+                        });
+                }
+            }));
+
+    }
+
     const onSubmitHandler = () => {
+
         if (isRegister) {
             if (username && email && password && confirmPassword) {
                 if (password === confirmPassword) {
-                    auth.createUserWithEmailAndPassword(email, password).then((result) => {
-                        console.log(result);
-                        result.user.sendEmailVerification();
-                        result.user.updateProfile({
-                            displayName: username
-                        }).then(() => {
-                            history.goBack()
-                        }).catch((error) => {
-                            setTimeout(() => setShowAlert({ show: false, type: '', content: '' }), 3000);
-                            setShowAlert({ show: true, type: 'Danger', content: `註冊失敗，發生錯誤：${error}` })
-                        });
-                    }).catch((error) => {
-                        setTimeout(() => setShowAlert({ show: false, type: '', content: '' }), 3000);
-                        setShowAlert({ show: true, type: 'Danger', content: `發生錯誤，錯誤編號：${error.code} - ${error.message}` })
-                    });
+                    checkUserName(username);
                 } else {
-                    setTimeout(() => setShowAlert({ show: false, type: '', content: '' }), 3000);
-                    setShowAlert({ show: true, type: 'Danger', content: '發生錯誤：密碼與確認密碼不相同' })
+                    showAlertHandler({ type: 'Danger', content: '密碼與確認密碼不相同' })
                 }
             } else {
-                setTimeout(() => setShowAlert({ show: false, type: '', content: '' }), 3000);
-                setShowAlert({ show: true, type: 'Danger', content: '發生錯誤：請確保所有欄位已填寫' })
+                showAlertHandler({ type: 'Danger', content: '請確保所有欄位已填寫' })
             }
         } else {
             if (email && password) {
@@ -83,11 +134,10 @@ const Auth = () => {
                         history.goBack()
                     })
                     .catch((error) => {
-                        setShowAlert({ show: true, type: 'Danger', content: `發生錯誤，錯誤編號：${error.code} - ${error.message}` })
+                        showAlertHandler({ type: 'Danger', code: error.code })
                     });
             } else {
-                setTimeout(() => setShowAlert({ show: false, type: '', content: '' }), 3000);
-                setShowAlert({ show: true, type: 'Danger', content: '發生錯誤：請確保所有欄位已填寫' })
+                showAlertHandler({ type: 'Danger', content: '請確保所有欄位已填寫' })
             }
         }
     }
@@ -96,10 +146,10 @@ const Auth = () => {
 
     return (
         <React.Fragment>
+            {showAlert.show && <Alert type={showAlert.type} code={showAlert.code}>{showAlert.content}</Alert>}
             <TitleBar left={[{ icon: faArrowLeft, onClick: goBackHandler }]} right={[]}>
                 {isRegister ? '註冊' : '登入'}
             </TitleBar>
-            {showAlert.show && <Alert type={showAlert.type}>{showAlert.content}</Alert>}
             <AuthForm
                 register={isRegister}
                 usernameChanged={(event) => setUsername(event.target.value)}

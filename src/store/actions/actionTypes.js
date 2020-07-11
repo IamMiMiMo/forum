@@ -1,1 +1,1 @@
-export const AUTH_SUCCESS = 'AUTH_SUCCESS';
+export const SET_TITLEBAR = 'SET_TITLEBAR';

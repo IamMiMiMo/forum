@@ -7,7 +7,7 @@ import moment from 'moment';
 import classes from './CreatePost.module.css';
 import CommentTextarea from '../../Components/CommentTextarea/CommentTextarea';
 import Alert from '../../Components/UI/Alert/Alert';
-import TitleBar from '../../Components/UI/TitleBar/TitleBar';
+import TitleBar from '../../Components/UI/Nav/TitleBar/TitleBar';
 import Input from '../../Components/UI/Input/Input';
 import { faArrowLeft, faSignOutAlt, faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 import * as PATH from '../../constants/paths';
@@ -39,6 +39,9 @@ const CreatePost = (props) => {
         var unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
                 setIsAuth(true)
+                if (!user.emailVerified) {
+                    showAlertHandler({ type: 'Danger', content: '開POST前請先驗證電郵' })
+                }
             } else {
                 setIsAuth(false)
             }
@@ -57,18 +60,17 @@ const CreatePost = (props) => {
     }
 
     const createPostContent = (postId) => {
-       const commentData = {
+        const commentData = {
             author: auth.currentUser.displayName,
             content: currentText,
             timeStamp: moment.utc().format()
         }
-
         database.ref(`posts/postComments/${postId}`)
             .push(commentData
                 , (error => {
                     if (error) {
                         console.log(error)
-                        setShowAlert({ show: true, type: 'Danger', content: '發生錯誤：' + error });
+                        showAlertHandler({ type: 'Danger', code: error.code });
                     } else {
                         history.replace(PATH.POST_PATH + id.current);
                     }
@@ -81,35 +83,31 @@ const CreatePost = (props) => {
             .update({
                 title: currentTitle,
                 author: auth.currentUser.displayName
-            }, (error => {
-                if (error) {
-                    setShowAlert({ show: true, type: 'Danger', content: '發生錯誤：' + error });
-                } else {
-                    createPostContent(postId)
-                }
-            }));
+            }).then(() => {
+                createPostContent(postId)
+            }).catch(error => {
+                showAlertHandler({ type: 'Danger', code: error.code });
+            });
     }
 
     const getNextPostId = () => {
-        try {
-            database.ref('posts/postList').once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    id.current = Object.keys(snapshot.val()).length
-                } else {
-                    id.current = 0
-                }
-                createPostDetail(id.current);
-            })
-        } catch {
-            setShowAlert({ show: true, type: 'Danger', content: '發生錯誤：無法讀取數據' });
-        }
+        database.ref('posts/postList').once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                id.current = Object.keys(snapshot.val()).length
+            } else {
+                id.current = 0
+            }
+            createPostDetail(id.current);
+        }).catch(error => {
+            showAlertHandler({ type: 'Danger', code: error.code });
+        })
     };
 
     const submitPostHandler = () => {
         if (currentTitle.trim().length !== 0 && currentText.trim().length !== 0) {
             getNextPostId()
         } else {
-            setShowAlert({ show: true, type: 'Danger', content: '未發表，請確保標題和內文並非空白！' });
+            showAlertHandler({ type: 'Danger', content: '未發表，請確保標題和內文並非空白！' })
         }
     }
 
@@ -128,10 +126,10 @@ const CreatePost = (props) => {
     }
 
     const showAlertHandler = (options) => {
-        setTimeout(() => { setShowAlert({ show: false, type: '', content: '' }); }, 3000)
-        return (
-            <Alert type={options.type}>{options.content}</Alert>
-        )
+        const props = { type: '', content: '', code: '' };
+        options = { ...props, ...options };
+        setTimeout(() => { setShowAlert({ show: false, type: '', content: '', code: '' }) }, 3000);
+        setShowAlert({ show: true, type: options.type, content: options.content, code: options.code })
     }
 
     const onPreviewHandler = () => {
@@ -155,7 +153,7 @@ const CreatePost = (props) => {
 
     return (
         <React.Fragment>
-            {showAlert.show && showAlertHandler(showAlert)}
+            {showAlert.show && <Alert type={showAlert.type} code={showAlert.code}>{showAlert.content}</Alert>}
             <TitleBar left={[{ icon: faArrowLeft, onClick: goBackHandler }]} right={rightIconRendered()}>開Post</TitleBar>
             <div className={classes.CreatePost}>
                 <Input
@@ -163,14 +161,14 @@ const CreatePost = (props) => {
                     placeholder="標題"
                     type="text"
                     onChange={(event) => setCurrentTitle(event.target.value)} />
-                    <CommentTextarea
-                        valid={validInput}
-                        text={currentText}
-                        preview={isPreview}
-                        changeHandler={(event) => currentTextChangeHandler(event)}
-                        submitHandler={submitPostHandler}
-                        previewHandler={onPreviewHandler}
-                        keyPress={(event) => onKeyPress(event)} />
+                <CommentTextarea
+                    valid={validInput}
+                    text={currentText}
+                    preview={isPreview}
+                    changeHandler={(event) => currentTextChangeHandler(event)}
+                    submitHandler={submitPostHandler}
+                    previewHandler={onPreviewHandler}
+                    keyPress={(event) => onKeyPress(event)} />
             </div>
         </React.Fragment>
     )

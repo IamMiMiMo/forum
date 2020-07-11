@@ -13,7 +13,7 @@ const authForm = (props) => {
                 <h2>註冊</h2>
                 <label>用戶名稱</label>
                 <Input onChange={props.usernameChanged} type="text" />
-                <label>電郵</label>
+                <label>電郵(需用於電郵認證)</label>
                 <Input onChange={props.emailChanged} type="text" />
                 <label>密碼</label>
                 <Input onChange={props.passwordChanged} type="password" />

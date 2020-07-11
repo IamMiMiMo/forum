@@ -5,11 +5,11 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter } from 'react-router-dom';
 import { createStore } from 'redux'
-import authReducer from './store/reducers/auth';
+import reducer from './store/reducers/reducers';
 import { Provider } from 'react-redux';
 
 const store = createStore(
-  authReducer,
+  reducer,
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 )
 
