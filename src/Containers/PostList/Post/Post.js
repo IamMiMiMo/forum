@@ -4,7 +4,7 @@ import * as firebase from 'firebase/app';
 import 'firebase/firebase-database';
 import 'firebase/auth';
 import moment from 'moment';
-import { convertToRaw } from 'draft-js';
+import { convertToRaw, EditorState, ContentState } from 'draft-js';
 import draftToMarkdown from 'draftjs-to-markdown';
 
 import '../../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -17,19 +17,16 @@ import CommentTextarea from '../../../Components/CommentTextarea/CommentTextarea
 import { faArrowLeft, faSignInAlt, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { FIREBASE_CONFIG } from '../../../constants/firebase';
 import * as PATH from '../../../constants/paths';
+import * as CONFIG from '../../../constants/config/config';
 
 const Post = (props) => {
     const [data, setData] = useState({});
-
     const [currentText, setCurrentText] = useState('');
-
     const [validInput, setValidInput] = useState(true);
-
     const [showAlert, setShowAlert] = useState({ show: false, type: '', content: '' });
-
     const [title, setTitle] = useState('');
-
     const [isPreview, setIsPreview] = useState(false);
+    const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
     const idRef = useRef();
     const match = useRouteMatch();
@@ -49,13 +46,14 @@ const Post = (props) => {
 
     const auth = firebase.auth();
     const [isAuth, setIsAuth] = useState(auth.currentUser !== null);
+
     //check auth state change
     useEffect(() => {
         var unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
                 setIsAuth(true);
-                if (!user.emailVerified){
-                    showAlertHandler({type: 'Danger', content: '留言前請先驗証電郵'})
+                if (!user.emailVerified) {
+                    showAlertHandler({ type: 'Danger', content: '留言前請先驗証電郵' })
                 }
             } else {
                 setIsAuth(false)
@@ -81,7 +79,7 @@ const Post = (props) => {
             if (snapshot.exists()) {
                 setTitle(snapshot.val());
             } else {
-                showAlertHandler({type: 'Danger', content: '發生錯誤：無法讀取數據' });
+                showAlertHandler({ type: 'Danger', content: '發生錯誤：無法讀取數據' });
             }
         });
     }, [database])
@@ -92,11 +90,12 @@ const Post = (props) => {
             if (snapshot.exists()) {
                 setData(snapshot.val());
             } else {
-                showAlertHandler({type: 'Danger', content: '發生錯誤：無法讀取數據' });
+                showAlertHandler({ type: 'Danger', content: '發生錯誤：無法讀取數據' });
             }
         });
     }, [database])
 
+    //put comment objects into an array for mapping
     const commentArray = [];
     for (const key in data) {
         commentArray.push({
@@ -105,6 +104,7 @@ const Post = (props) => {
         })
     }
 
+    //handle submit comment
     const submitComment = () => {
         if (currentText.trim().length !== 0) {
             const commentData = {
@@ -122,15 +122,26 @@ const Post = (props) => {
                             showAlertHandler({ type: 'Success', content: '已發表' });
                             setCurrentText('');
                             //prevent submit in preview mode
-                            if (document.querySelector("textarea")) {
-                                document.querySelector("textarea").focus();
+
+                            if (CONFIG.USE_SIMPLE_EDITOR) {
+                                if (document.querySelector("textarea")) {
+                                    document.querySelector("textarea").focus();
+                                }
+                                setIsPreview(false);
+                            } else {
+                                clearContent();
+                                if (editorReferece) {
+                                    editorReferece.focus();
+                                }
+                                // focus on rich text editor
                             }
-                            setIsPreview(false);
+
                         }
                     }));
         }
     }
 
+    //listen to ctrl + enter to submit comment (only valid for simple editor)
     const onKeyPress = () => {
         var keyPressed = window.event.keyCode;
         var ctrlPressed = window.event.ctrlKey;
@@ -138,6 +149,8 @@ const Post = (props) => {
             submitComment();
         }
     }
+
+    //listen to text change in comment textarea (only valid for simple editor)
     const currentTextChangeHandler = (event) => {
         setCurrentText(event.target.value);
         if (event.target.value !== '' && event.target.value !== null) {
@@ -148,15 +161,17 @@ const Post = (props) => {
 
     const showAlertHandler = (options) => {
         const props = { type: '', content: '', code: '' };
-        options = {...props, ...options};
+        options = { ...props, ...options };
         setTimeout(() => { setShowAlert({ show: false, type: '', content: '', code: '' }) }, 3000);
         setShowAlert({ show: true, type: options.type, content: options.content, code: options.code })
     }
 
+    // set preview (only valid for simple editor)
     const onPreviewHandler = () => {
         setIsPreview(!isPreview);
     }
 
+    // quote
     const onQuoteHandler = (text) => {
         const formattedText = text.replace(/^/gm, '>')
         setCurrentText(currentText + formattedText + '\n\n');
@@ -165,19 +180,38 @@ const Post = (props) => {
         }
     }
 
+    // wysiwyg editor functions
+    let editorReferece = null;
+    const setEditorReference = (ref) => {
+        editorReferece = ref;
+        if (ref) {
+            ref.focus();
+        }
+    }
+
+    const onEditorStateChange = (es) => {
+        setEditorState(es);
+        setCurrentText(draftToMarkdown(convertToRaw(es.getCurrentContent())));
+    }
+
+    const clearContent = () => {
+        setEditorState(EditorState.push(editorState, ContentState.createFromText('')));
+    }
+
+    // history - url redirection
     const history = useHistory()
     const goBackHandler = () => {
         history.goBack();
     }
 
+    // render comment textarea
     const commentRendered = () => {
         let content = [<Spinner key="spinner" />];
         if (commentArray.length > 0) {
-            content = [<Comments comments={commentArray} key="comments" onQuote={onQuoteHandler}/>]
+            content = [<Comments comments={commentArray} key="comments" onQuote={onQuoteHandler} />]
             if (isAuth) {
-                if (false === true){
+                if (CONFIG.USE_SIMPLE_EDITOR) {
                     content.push(<CommentTextarea
-                        simple={true}
                         valid={validInput}
                         text={currentText}
                         preview={isPreview}
@@ -186,12 +220,12 @@ const Post = (props) => {
                         previewHandler={onPreviewHandler}
                         keyPress={(event) => onKeyPress(event)}
                         key="textarea" />);
-                }else{
+                } else {
                     content.push(<CommentTextarea
-                        simple={false}
                         submitHandler={submitComment}
-                        //setEditorReference={}
-                        onEditorStateChange={editorState => setCurrentText(draftToMarkdown(convertToRaw(editorState.getCurrentContent())))}
+                        setEditorReference={setEditorReference}
+                        editorState={editorState}
+                        onEditorStateChange={onEditorStateChange}
                         key="textarea"
                     />);
                 }
@@ -203,6 +237,7 @@ const Post = (props) => {
         return content;
     }
 
+    // configurate titleBar icons
     const rightIconRendered = () => {
         const content = [];
         if (isAuth) {

@@ -3,6 +3,8 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Editor } from 'react-draft-wysiwyg';
 
+import * as CONFIG from '../../constants/config/config';
+
 import classes from './CommentTextarea.module.css';
 import Button from '../UI/Button/Button';
 
@@ -13,9 +15,26 @@ const CommentTextarea = (props) => {
         classList.push(classes.Invalid)
     }
 
+    const uploadImage = (file) => {
+        return new Promise(resolve => {
+            const formData = new FormData();
+            formData.append('source', file)
+            fetch(`https://imgst.art/api/1/upload/?key=d5eddb0f844d0e85de8b4216325b3d56&format=json`, {
+                method: 'POST',
+                body: formData
+            }).then((response) => {
+                return response.json()
+            }).then((responseData) => {
+                resolve({data: {link: responseData.image.url}})
+            }).catch(error => {
+                console.log('error:', error)
+            })
+        })
+    }
+
     return (
         <React.Fragment>
-            {props.simple ?
+            {CONFIG.USE_SIMPLE_EDITOR ?
                 <form onKeyPress={props.keyPress}>
                     <div style={{ "position": "relative", "marginBottom": "15px" }}>
                         {!props.preview ?
@@ -41,16 +60,37 @@ const CommentTextarea = (props) => {
                     <Editor
                         wrapperClassName={classes.Wrapper}
                         editorClassName={classes.Editor}
+                        editorState={props.editorState}
                         editorRef={props.setEditorReference}
                         onEditorStateChange={props.onEditorStateChange}
+                        placeholder={"輸入你的想法..."}
+                        localization={{
+                            locale: 'zh_tw'
+                        }}
                         toolbar={{
-                            options: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'link', 'emoji', 'image', 'history'],
+                            options: ['inline', 'blockType', 'list', 'link', 'emoji', 'image', 'history'],
                             inline: {
                                 inDropdown: false,
                                 className: undefined,
                                 component: undefined,
                                 dropdownClassName: undefined,
                                 options: ['bold', 'italic', 'strikethrough', 'monospace'],
+                            },
+                            image: {
+                                className: undefined,
+                                component: undefined,
+                                popupClassName: undefined,
+                                urlEnabled: true,
+                                uploadEnabled: true,
+                                alignmentEnabled: false,
+                                uploadCallback: (file) => uploadImage(file),
+                                previewImage: true,
+                                inputAccept: 'image/gif,image/jpeg,image/jpg,image/png,image/svg',
+                                alt: { present: false, mandatory: false },
+                                defaultSize: {
+                                    height: 'auto',
+                                    width: 'auto',
+                                }
                             }
                         }}
                     />

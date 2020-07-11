@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import * as firebase from 'firebase/app';
 import 'firebase/auth'
 import moment from 'moment';
-import { convertToRaw } from 'draft-js';
+import { convertToRaw, EditorState } from 'draft-js';
 import draftToMarkdown from 'draftjs-to-markdown';
 
 import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -15,6 +15,7 @@ import Input from '../../Components/UI/Input/Input';
 import { faArrowLeft, faSignOutAlt, faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 import * as PATH from '../../constants/paths';
 import { FIREBASE_CONFIG } from '../../constants/firebase';
+import * as CONFIG from '../../constants/config/config';
 
 const CreatePost = (props) => {
 
@@ -24,6 +25,7 @@ const CreatePost = (props) => {
     const [validInput, setValidInput] = useState(true);
     const [isAuth, setIsAuth] = useState(false);
     const [isPreview, setIsPreview] = useState(false);
+    const [editorState, setEditorState] = useState(EditorState.createEmpty())
 
     const history = useHistory();
     const id = useRef();
@@ -139,6 +141,15 @@ const CreatePost = (props) => {
         setIsPreview(!isPreview);
     }
 
+    // wysiwyg editor functions
+
+    const onEditorStateChange = (es) => {
+        setEditorState(es);
+        setCurrentText(draftToMarkdown(convertToRaw(es.getCurrentContent())));
+    }
+
+    // history
+
     const goBackHandler = () => {
         history.goBack();
     }
@@ -153,24 +164,6 @@ const CreatePost = (props) => {
         return content;
     }
 
-    //   const formData = new FormData();
-    //   formData.append('source',file)
-    //   fetch(`https://imgst.art/api/1/upload/?key=d5eddb0f844d0e85de8b4216325b3d56&format=json`,{
-    //       method: 'POST',
-    //       body: formData
-    //   })
-    //   .then((response) => {
-    //     return response.json()
-    //   })
-    //   .then((responseData) => {
-    //       console.log(responseData);
-    //   })
-    //   .catch(error => {
-    //       console.log('error:', error)
-    //   })
-
-
-
     return (
         <React.Fragment>
             {showAlert.show && <Alert type={showAlert.type} code={showAlert.code}>{showAlert.content}</Alert>}
@@ -181,21 +174,22 @@ const CreatePost = (props) => {
                     placeholder="標題"
                     type="text"
                     onChange={(event) => setCurrentTitle(event.target.value)} />
-                {false === true ?
+                {CONFIG.USE_SIMPLE_EDITOR ?
                     <CommentTextarea
-                        simple={true}
                         valid={validInput}
                         text={currentText}
                         preview={isPreview}
                         changeHandler={(event) => currentTextChangeHandler(event)}
                         submitHandler={submitPostHandler}
                         previewHandler={onPreviewHandler}
-                        keyPress={(event) => onKeyPress(event)} />
+                        keyPress={(event) => onKeyPress(event)}
+                        key="textarea" />
                     :
                     <CommentTextarea
-                        simple={false}
                         submitHandler={submitPostHandler}
-                        onEditorStateChange={editorState => setCurrentText(draftToMarkdown(convertToRaw(editorState.getCurrentContent())))}
+                        editorState={editorState}
+                        onEditorStateChange={onEditorStateChange}
+                        key="textarea"
                     />
                 }
             </div>

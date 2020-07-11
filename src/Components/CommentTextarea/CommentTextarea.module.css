@@ -41,4 +41,5 @@
 
 .Editor {
     padding: 0 15px;
+    min-height: 200px;
 }
