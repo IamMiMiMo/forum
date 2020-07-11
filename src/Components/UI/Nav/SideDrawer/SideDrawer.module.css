@@ -17,19 +17,28 @@
 
 .SideDrawerInner{
     display: flex;
-
-}
-
-.SideDrawerInner div{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
+    flex-wrap: wrap;
 }
 
 .SideDrawerInner a {
     color: white;
 }
 
+.SideDrawerInner > div{
+    min-width: 25%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.SideDrawerInner div div {
+    height: 100%;
+}
+
+.MenuItemInner a{
+    display: block;
+    text-align: center;
+}

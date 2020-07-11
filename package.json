@@ -12,6 +12,7 @@
     "draft-js": "^0.11.6",
     "draftjs-to-markdown": "^0.6.0",
     "firebase": "^7.15.5",
+    "markdown-draft-js": "^2.2.1",
     "moment": "^2.27.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

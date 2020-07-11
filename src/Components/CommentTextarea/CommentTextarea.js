@@ -32,6 +32,13 @@ const CommentTextarea = (props) => {
         })
     }
 
+    const blockStyle = (contentBlock) => {
+        const type = contentBlock.getType();
+        if (type === 'blockquote') {
+          return classes.Blockquote;
+        }
+      }
+
     return (
         <React.Fragment>
             {CONFIG.USE_SIMPLE_EDITOR ?
@@ -64,6 +71,7 @@ const CommentTextarea = (props) => {
                         editorRef={props.setEditorReference}
                         onEditorStateChange={props.onEditorStateChange}
                         placeholder={"輸入你的想法..."}
+                        blockStyleFn={blockStyle}
                         localization={{
                             locale: 'zh_tw'
                         }}

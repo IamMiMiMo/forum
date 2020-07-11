@@ -16,7 +16,6 @@
     justify-content: center;
     flex-wrap: wrap;
     align-items: stretch;
-    padding: 15px 0px;
 }
 
 .LeftColumn {
@@ -44,5 +43,6 @@
     }
     .MainContent {
         margin: 0 5%;
+        padding: 15px 0px;
     }
 }

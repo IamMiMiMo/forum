@@ -61,6 +61,9 @@ const alert = (props) => {
         case "auth/invalid-user-token":
             content = '登入無效，請刷新頁面並重新登入';
             break;
+        case "auth/invalid-password":
+            content = '密碼無效，長度最少為六個字元';
+            break;
         case "":
             content = props.children;
             break;
