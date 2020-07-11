@@ -12,7 +12,6 @@ import { faPlus, faSignInAlt, faBars, faSignOutAlt } from '@fortawesome/free-sol
 import { FIREBASE_CONFIG } from '../../constants/firebase';
 import * as PATH from '../../constants/paths';
 import Spinner from '../../Components/UI/Spinner/Spinner';
-import SideDrawer from '../../Components/UI/Nav/SideDrawer/SideDrawer';
 
 const PostList = (props) => {
 

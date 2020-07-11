@@ -3,7 +3,10 @@ import { useHistory } from 'react-router-dom';
 import * as firebase from 'firebase/app';
 import 'firebase/auth'
 import moment from 'moment';
+import { convertToRaw } from 'draft-js';
+import draftToMarkdown from 'draftjs-to-markdown';
 
+import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import classes from './CreatePost.module.css';
 import CommentTextarea from '../../Components/CommentTextarea/CommentTextarea';
 import Alert from '../../Components/UI/Alert/Alert';
@@ -150,6 +153,23 @@ const CreatePost = (props) => {
         return content;
     }
 
+    //   const formData = new FormData();
+    //   formData.append('source',file)
+    //   fetch(`https://imgst.art/api/1/upload/?key=d5eddb0f844d0e85de8b4216325b3d56&format=json`,{
+    //       method: 'POST',
+    //       body: formData
+    //   })
+    //   .then((response) => {
+    //     return response.json()
+    //   })
+    //   .then((responseData) => {
+    //       console.log(responseData);
+    //   })
+    //   .catch(error => {
+    //       console.log('error:', error)
+    //   })
+
+
 
     return (
         <React.Fragment>
@@ -161,14 +181,23 @@ const CreatePost = (props) => {
                     placeholder="標題"
                     type="text"
                     onChange={(event) => setCurrentTitle(event.target.value)} />
-                <CommentTextarea
-                    valid={validInput}
-                    text={currentText}
-                    preview={isPreview}
-                    changeHandler={(event) => currentTextChangeHandler(event)}
-                    submitHandler={submitPostHandler}
-                    previewHandler={onPreviewHandler}
-                    keyPress={(event) => onKeyPress(event)} />
+                {false === true ?
+                    <CommentTextarea
+                        simple={true}
+                        valid={validInput}
+                        text={currentText}
+                        preview={isPreview}
+                        changeHandler={(event) => currentTextChangeHandler(event)}
+                        submitHandler={submitPostHandler}
+                        previewHandler={onPreviewHandler}
+                        keyPress={(event) => onKeyPress(event)} />
+                    :
+                    <CommentTextarea
+                        simple={false}
+                        submitHandler={submitPostHandler}
+                        onEditorStateChange={editorState => setCurrentText(draftToMarkdown(convertToRaw(editorState.getCurrentContent())))}
+                    />
+                }
             </div>
         </React.Fragment>
     )

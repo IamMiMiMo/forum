@@ -4,7 +4,10 @@ import * as firebase from 'firebase/app';
 import 'firebase/firebase-database';
 import 'firebase/auth';
 import moment from 'moment';
+import { convertToRaw } from 'draft-js';
+import draftToMarkdown from 'draftjs-to-markdown';
 
+import '../../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import Comments from '../../../Components/Comments/Comments';
 import classes from './Post.module.css';
 import TitleBar from '../../../Components/UI/Nav/TitleBar/TitleBar';
@@ -172,15 +175,26 @@ const Post = (props) => {
         if (commentArray.length > 0) {
             content = [<Comments comments={commentArray} key="comments" onQuote={onQuoteHandler}/>]
             if (isAuth) {
-                content.push(<CommentTextarea
-                    valid={validInput}
-                    text={currentText}
-                    changeHandler={(event) => currentTextChangeHandler(event)}
-                    submitHandler={submitComment}
-                    keyPress={(event) => onKeyPress(event)}
-                    preview={isPreview}
-                    previewHandler={onPreviewHandler}
-                    key="textarea" />);
+                if (false === true){
+                    content.push(<CommentTextarea
+                        simple={true}
+                        valid={validInput}
+                        text={currentText}
+                        preview={isPreview}
+                        changeHandler={(event) => currentTextChangeHandler(event)}
+                        submitHandler={submitComment}
+                        previewHandler={onPreviewHandler}
+                        keyPress={(event) => onKeyPress(event)}
+                        key="textarea" />);
+                }else{
+                    content.push(<CommentTextarea
+                        simple={false}
+                        submitHandler={submitComment}
+                        //setEditorReference={}
+                        onEditorStateChange={editorState => setCurrentText(draftToMarkdown(convertToRaw(editorState.getCurrentContent())))}
+                        key="textarea"
+                    />);
+                }
             } else {
                 content.push(<Link to={PATH.AUTH_PATH} key="loginPrompt"><p style={{ "textAlign": "center", "textDecoration": "underline" }}>登入帳號來參與討論</p></Link>)
 
