@@ -4,9 +4,8 @@ import * as firebase from 'firebase/app';
 import 'firebase/firebase-database';
 import 'firebase/auth';
 import moment from 'moment';
-import { convertToRaw, EditorState, ContentState, Modifier, Editor, ContentBlock, genKey, convertFromRaw } from 'draft-js';
-import { markdownToDraft } from 'markdown-draft-js';
-import draftToMarkdown from 'draftjs-to-markdown'
+import { convertToRaw, EditorState, ContentState, convertFromRaw } from 'draft-js';
+import { mdToDraftjs, draftjsToMd } from 'draftjs-md-converter';
 
 import '../../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import Comments from '../../../Components/Comments/Comments';
@@ -176,44 +175,17 @@ const Post = (props) => {
 
     // quote
     const onQuoteHandler = (text) => {
-        console.log(text)
+        const formattedText = text.replace(/^/gm, '>')
         if (CONFIG.USE_SIMPLE_EDITOR) {
-            const formattedText = text.replace(/^/gm, '>')
             setCurrentText(currentText + formattedText + '\n\n');
             if (document.querySelector("textarea")) {
                 document.querySelector("textarea").focus();
             }
         } else {
-            // const currentContent = editorState.getCurrentContent(),
-            //     currentSelection = editorState.getSelection();
-            // const newContent = Modifier.replaceText(
-            //     currentContent,
-            //     currentSelection,
-            //     text
-            // );
-
-            // const newEditorState = EditorState.push(editorState, newContent, text);
-            // setEditorState(EditorState.forceSelection(newEditorState, newContent.getSelectionAfter()));
-            const formattedText = markdownToDraft(text);
-            console.log(formattedText)
-            // console.log(formattedText)
-            // const blockMap = editorState.getCurrentContent().getBlockMap();
-            // const newBlock = new ContentBlock({
-            //     key: genKey(),
-            //     text: text,
-            //     type: 'blockquote',
-            // });
-            // const newBlockMap = blockMap.toSeq().concat([[newBlock.getKey(), newBlock]]).toOrderedMap();
-            // setEditorState(EditorState.push(editorState, editorState.getCurrentContent().merge({
-            //     blockMap: newBlockMap
-            // })))
-            let rawObject = convertToRaw(editorState.getCurrentContent())
-            console.log(rawObject.blocks)
-            rawObject.blocks.push(formattedText.blocks[0])
-            let newContentState = convertFromRaw(rawObject)
-
-            setEditorState(EditorState.push(editorState, newContentState, 'insert-fragment'))
-            setEditorState(EditorState.moveSelectionToEnd(editorState))
+            const rawData = mdToDraftjs(formattedText + '\n\n');
+            const contentState = convertFromRaw(rawData);
+            const newEditorState = EditorState.createWithContent(contentState);
+            setEditorState(EditorState.moveFocusToEnd(newEditorState));
         }
 
     }
@@ -229,8 +201,7 @@ const Post = (props) => {
 
     const onEditorStateChange = (es) => {
         setEditorState(es);
-        console.log((es.getCurrentContent()))
-        setCurrentText(draftToMarkdown(convertToRaw(es.getCurrentContent())));
+        setCurrentText(draftjsToMd(convertToRaw(es.getCurrentContent())));
     }
 
     const clearContent = () => {

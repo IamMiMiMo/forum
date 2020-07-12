@@ -4,7 +4,7 @@ import * as firebase from 'firebase/app';
 import 'firebase/auth'
 import moment from 'moment';
 import { convertToRaw, EditorState } from 'draft-js';
-import draftToMarkdown from 'draftjs-to-markdown';
+import {draftjsToMd} from 'draftjs-md-converter';
 
 import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import classes from './CreatePost.module.css';
@@ -145,7 +145,7 @@ const CreatePost = (props) => {
 
     const onEditorStateChange = (es) => {
         setEditorState(es);
-        setCurrentText(draftToMarkdown(convertToRaw(es.getCurrentContent())));
+        setCurrentText(draftjsToMd(convertToRaw(es.getCurrentContent())));
     }
 
     // history

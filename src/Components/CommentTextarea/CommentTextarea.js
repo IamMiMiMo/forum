@@ -16,7 +16,7 @@ const CommentTextarea = (props) => {
     }
 
     const uploadImage = (file) => {
-        return new Promise(resolve => {
+        return new Promise((resolve,reject) => {
             const formData = new FormData();
             formData.append('source', file)
             fetch(`https://imgst.art/api/1/upload/?key=d5eddb0f844d0e85de8b4216325b3d56&format=json`, {
@@ -27,7 +27,7 @@ const CommentTextarea = (props) => {
             }).then((responseData) => {
                 resolve({data: {link: responseData.image.url}})
             }).catch(error => {
-                console.log('error:', error)
+                reject('error:', error)
             })
         })
     }
