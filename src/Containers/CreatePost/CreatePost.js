@@ -2,12 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import * as firebase from 'firebase/app';
 import 'firebase/auth'
+import 'firebase/database'
 import moment from 'moment';
 import { convertToRaw, EditorState } from 'draft-js';
-import {draftjsToMd} from 'draftjs-md-converter';
+import { draftjsToMd } from 'draftjs-md-converter';
 
 import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import classes from './CreatePost.module.css';
+import Select from '../../Components/UI/Select/Select';
 import CommentTextarea from '../../Components/CommentTextarea/CommentTextarea';
 import Alert from '../../Components/UI/Alert/Alert';
 import TitleBar from '../../Components/UI/Nav/TitleBar/TitleBar';
@@ -25,7 +27,9 @@ const CreatePost = (props) => {
     const [validInput, setValidInput] = useState(true);
     const [isAuth, setIsAuth] = useState(false);
     const [isPreview, setIsPreview] = useState(false);
-    const [editorState, setEditorState] = useState(EditorState.createEmpty())
+    const [editorState, setEditorState] = useState(EditorState.createEmpty());
+    const [selectOptions, setSelectOptions] = useState({});
+    const [selected, setSelected] = useState(0);
 
     const history = useHistory();
     const id = useRef();
@@ -54,6 +58,24 @@ const CreatePost = (props) => {
 
         return () => unsubscribe();
     }, [auth]);
+
+    //get categories
+    useEffect(() => {
+        database.ref(`posts/category`).once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                console.log(snapshot.val())
+                let temp = snapshot.val().map((item,index) => {
+                    return {
+                        value: index,
+                        label: item
+                    }
+                })
+                setSelectOptions(temp) 
+            } else {
+                //發生錯誤：無法讀取數據
+            }
+        });
+    }, [database])
 
 
     const signOut = () => {
@@ -87,7 +109,8 @@ const CreatePost = (props) => {
         database.ref(`posts/postList/${postId}`)
             .update({
                 title: currentTitle,
-                author: auth.currentUser.displayName
+                author: auth.currentUser.displayName,
+                category: selected
             }).then(() => {
                 createPostContent(postId)
             }).catch(error => {
@@ -169,11 +192,15 @@ const CreatePost = (props) => {
             {showAlert.show && <Alert type={showAlert.type} code={showAlert.code}>{showAlert.content}</Alert>}
             <TitleBar left={[{ icon: faArrowLeft, onClick: goBackHandler }]} right={rightIconRendered()}>開Post</TitleBar>
             <div className={classes.CreatePost}>
+                <p>標題</p>
                 <Input
                     value={currentTitle}
                     placeholder="標題"
                     type="text"
                     onChange={(event) => setCurrentTitle(event.target.value)} />
+                <p>分類</p>
+                <Select options={selectOptions}  selectOnChange={(event) => setSelected(+event.target.value)} selectValue={+selected}/>
+                <p>內容</p>
                 {CONFIG.USE_SIMPLE_EDITOR ?
                     <CommentTextarea
                         valid={validInput}

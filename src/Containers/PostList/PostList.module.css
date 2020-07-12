@@ -3,7 +3,7 @@
     width: 100%;
 }
 
-.Posts div:last-child {
+.Posts > div:last-child {
     border-bottom: none;
 }
 

@@ -16,6 +16,16 @@
     margin: 0 0 15px 0;
 }
 
+.PostCategory{
+    border-radius: 5px;
+    padding: 0 5px;
+    border: 1px solid #4f5b62;
+    font-size: smaller;
+    margin: 0 0 15px 0;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
 .PostTitle {
     margin: 0;
 }

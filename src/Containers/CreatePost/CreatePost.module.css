@@ -5,7 +5,6 @@
     border:none;
     box-shadow: 0px 0px 4px 0 rgba(0,0,0,0.2);
     padding: 15px;
-    margin: 15px 0;
 }
 
 .CreatePost {
@@ -14,6 +13,11 @@
     margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
+}
+
+.CreatePost > * {
+    margin-top: 15px;
+    margin-bottom: 0px;
 }
 
 @media only screen and (min-width: 1140px) {

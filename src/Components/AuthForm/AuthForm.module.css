@@ -4,6 +4,14 @@
     margin: 0px auto;
 }
 
+.AuthFormInner * {
+    margin-top: 15px;
+}
+
+.AuthForm label{
+    display:inline-block;
+}
+
 .Switch {
     cursor: pointer;
 }

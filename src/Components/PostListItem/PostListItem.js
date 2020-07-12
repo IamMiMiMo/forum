@@ -4,9 +4,13 @@ import classes from './PostListItem.module.css';
 import {Link} from 'react-router-dom';
 
 const postListItem = (props) => {
+
     return (
         <div className={classes.PostListItem}>
-            <p className={classes.PostDetail}>{props.author}</p>
+            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <div className={classes.PostDetail}>{props.author} </div>
+                <div className={classes.PostCategory} onClick={props.categoryOnClick}>{props.category}</div>
+            </div>
             <Link 
                 to={{
                     pathname: "/post/" + props.id,

@@ -9,7 +9,7 @@ const authForm = (props) => {
     let form = '';
     if (props.register) {
         form = (
-            <form>
+            <form className={classes.AuthFormInner}>
                 <h2>註冊</h2>
                 <label>用戶名稱</label>
                 <Input onChange={props.usernameChanged} type="text" />
@@ -24,7 +24,7 @@ const authForm = (props) => {
         )
     } else {
         form = (
-            <form>
+            <form className={classes.AuthFormInner}>
                 <h2>登入</h2>
                 <label>電郵</label>
                 <Input onChange={props.emailChanged} type="text" />

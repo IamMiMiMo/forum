@@ -1,6 +1,8 @@
 import React, { lazy, Suspense } from 'react';
 import { Switch, Route } from 'react-router-dom';
 
+import Spinner from './Components/UI/Spinner/Spinner';
+
 import './App.css';
 
 const App = (props) => {
@@ -12,7 +14,7 @@ const App = (props) => {
 
   return (
     <div className="App">
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Spinner/>}>
         <Switch>
           <Route path="/post/:id">
             <Post />
@@ -23,7 +25,10 @@ const App = (props) => {
           <Route path="/auth">
             <Auth />
           </Route>
-          <Route path="/posts">
+          <Route path="/posts/category/:categoryId">
+            <PostList />
+          </Route>
+          <Route exact path="/posts">
             <PostList />
           </Route>
           <Route>
