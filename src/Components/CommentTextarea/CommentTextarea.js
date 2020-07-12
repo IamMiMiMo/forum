@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { Editor } from 'react-draft-wysiwyg';
 
 import * as CONFIG from '../../constants/config/config';
+import * as APIKEY from '../../constants/apikey';
 
 import classes from './CommentTextarea.module.css';
 import Button from '../UI/Button/Button';
@@ -19,7 +20,7 @@ const CommentTextarea = (props) => {
         return new Promise((resolve,reject) => {
             const formData = new FormData();
             formData.append('source', file)
-            fetch(`https://imgst.art/api/1/upload/?key=d5eddb0f844d0e85de8b4216325b3d56&format=json`, {
+            fetch(`https://imgst.art/api/1/upload/?key=${APIKEY.CHEVERETO_API_KEY}&format=json`, {
                 method: 'POST',
                 body: formData
             }).then((response) => {
