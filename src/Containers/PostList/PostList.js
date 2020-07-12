@@ -33,7 +33,7 @@ const PostList = (props) => {
     const database = firebase.database();
     const auth = firebase.auth();
     const [isAuth, setIsAuth] = useState(auth.currentUser !== null);
-    const notCategory = !Number.isInteger(match.params.categoryId);
+    const notCategory = isNaN(match.params.categoryId);
 
     useEffect(() => {
         var unsubscribe = auth.onAuthStateChanged((user) => {
