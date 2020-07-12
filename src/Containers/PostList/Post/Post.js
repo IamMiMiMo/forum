@@ -31,6 +31,7 @@ const Post = (props) => {
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
     const idRef = useRef();
+    const editorReferece = useRef();
     const match = useRouteMatch();
     const location = useLocation();
 
@@ -132,8 +133,8 @@ const Post = (props) => {
                                 setIsPreview(false);
                             } else {
                                 clearContent();
-                                if (editorReferece) {
-                                    editorReferece.focus();
+                                if (editorReferece.current) {
+                                    editorReferece.current.focus();
                                 }
                                 // focus on rich text editor
                             }
@@ -191,12 +192,11 @@ const Post = (props) => {
     }
 
     // wysiwyg editor functions
-    let editorReferece = null;
     const setEditorReference = (ref) => {
-        editorReferece = ref;
-        if (ref) {
-            ref.focus();
-        }
+        editorReferece.current = ref;
+        // if (ref) {
+        //     ref.focus();
+        // }
     }
 
     const onEditorStateChange = (es) => {
