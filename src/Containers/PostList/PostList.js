@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import * as firebase from "firebase/app";
 
@@ -24,7 +24,7 @@ const PostList = (props) => {
     const [titleBar, setTitleBar] = useState();
     const history = useHistory();
     const match = useRouteMatch();
-    const postArray = [];
+    const posts = useRef();
 
     // Initialize Firebase
 
@@ -87,43 +87,46 @@ const PostList = (props) => {
         return () => { listOfPostRef.off() }; //detach listener
     }, [database, match.params.categoryId, notCategory])
 
-    //get categories
+    //get categories, then create post array to set posts (post list item)
     useEffect(() => {
         database.ref(`posts/category`).once('value').then((snapshot) => {
             if (snapshot.exists()) {
                 setCategoryList(snapshot.val())
+
+                const postArray = []
+                for (const key in listOfPost) {
+                    postArray.push({
+                        postId: key,
+                        title: listOfPost[key].title,
+                        author: listOfPost[key].author,
+                        categoryId: listOfPost[key].category,
+                        categoryName: snapshot.val()[listOfPost[key].category].name
+                    })
+                }
+            
+                posts.current = postArray.reverse().map(item => {
+                    return (
+                        <PostListItem
+                            key={item.postId}
+                            title={item.title}
+                            author={item.author}
+                            id={item.postId}
+                            category={item.categoryName}
+                            categoryOnClick={(e) => {
+                                if (!e) { e = window.event };
+                                e.cancelBubble = true;
+                                if (e.stopPropagation) e.stopPropagation();
+                                history.push(PATH.CATEGORY_PATH + '/' + item.categoryId);
+                            }} />
+                    )
+                })
             } else {
                 showAlertHandler({ type: 'Danger', content: '冇任何分類喎' });
             }
         });
-    }, [database])
+    }, [database,history,listOfPost])
 
-    for (const key in listOfPost) {
-        postArray.push({
-            postId: key,
-            title: listOfPost[key].title,
-            author: listOfPost[key].author,
-            categoryId: listOfPost[key].category,
-            categoryName: categoryList[listOfPost[key].category].name
-        })
-    }
 
-    const posts = postArray.reverse().map(item => {
-        return (
-            <PostListItem
-                key={item.postId}
-                title={item.title}
-                author={item.author}
-                id={item.postId}
-                category={item.categoryName}
-                categoryOnClick={(e) => {
-                    if (!e) { e = window.event };
-                    e.cancelBubble = true;
-                    if (e.stopPropagation) e.stopPropagation();
-                    history.push(PATH.CATEGORY_PATH + '/' + item.categoryId);
-                }} />
-        )
-    })
 
     useEffect(() => {
         if (categoryList.length > 0) {
@@ -156,9 +159,9 @@ const PostList = (props) => {
             <div className={classes.MainContent}>
                 <div className={classes.LeftColumn}>
                     <div className={classes.PostList}>
-                        {postArray.length > 0 ?
+                        {posts.current ?
                             <div className={classes.Posts}>
-                                {posts}
+                                {posts.current}
                             </div>
                             : <Spinner />}
                     </div>
