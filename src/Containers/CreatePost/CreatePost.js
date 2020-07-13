@@ -64,13 +64,13 @@ const CreatePost = (props) => {
         database.ref(`posts/category`).once('value').then((snapshot) => {
             if (snapshot.exists()) {
                 console.log(snapshot.val())
-                let temp = snapshot.val().map((item,index) => {
+                let temp = snapshot.val().map((item, index) => {
                     return {
                         value: index,
-                        label: item
+                        label: item.name
                     }
                 })
-                setSelectOptions(temp) 
+                setSelectOptions(temp)
             } else {
                 //發生錯誤：無法讀取數據
             }
@@ -118,6 +118,29 @@ const CreatePost = (props) => {
             });
     }
 
+    const readAndUpdatePostCounter = (postId) => {
+        console.log(selected)
+        database.ref(`posts/category/${selected}`).once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                database.ref(`posts/category/${selected}`)
+                .update({
+                    postcount: snapshot.val().postcount + 1
+                }).then(() => {
+                    createPostDetail(postId)
+                }).catch(error => {
+                    console.log('read1')
+                        showAlertHandler({ type: 'Danger', content: '分類ID錯誤'});
+                    });
+            } else {
+                console.log('read2')
+                showAlertHandler({ type: 'Danger', content: '發生錯誤'});
+            }
+        }).catch(error => {
+            console.log(error)
+            showAlertHandler({ type: 'Danger', content: error.code });
+        })
+    }
+
     const getNextPostId = () => {
         database.ref('posts/postList').once('value').then((snapshot) => {
             if (snapshot.exists()) {
@@ -125,7 +148,7 @@ const CreatePost = (props) => {
             } else {
                 id.current = 0
             }
-            createPostDetail(id.current);
+            readAndUpdatePostCounter(id.current);
         }).catch(error => {
             showAlertHandler({ type: 'Danger', code: error.code });
         })
@@ -199,7 +222,7 @@ const CreatePost = (props) => {
                     type="text"
                     onChange={(event) => setCurrentTitle(event.target.value)} />
                 <p>分類</p>
-                <Select options={selectOptions}  selectOnChange={(event) => setSelected(+event.target.value)} selectValue={+selected}/>
+                <Select options={selectOptions} selectOnChange={(event) => setSelected(+event.target.value)} selectValue={+selected} />
                 <p>內容</p>
                 {CONFIG.USE_SIMPLE_EDITOR ?
                     <CommentTextarea

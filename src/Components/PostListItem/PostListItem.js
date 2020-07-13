@@ -1,26 +1,29 @@
 import React from 'react';
 import classes from './PostListItem.module.css';
 
-import {Link} from 'react-router-dom';
+import {useHistory} from 'react-router-dom';
+import * as PATH from '../../constants/paths';
 
-const postListItem = (props) => {
+const PostListItem = (props) => {
+
+    const history = useHistory();
+
+    const gotoPost = () => {
+        history.push({
+            pathname: PATH.POST_PATH + props.id,
+            state: {title: [props.title]}
+        })
+    }
 
     return (
-        <div className={classes.PostListItem}>
+        <div className={classes.PostListItem} onClick={() => gotoPost()}>
             <div style={{display: 'flex', justifyContent: 'space-between'}}>
                 <div className={classes.PostDetail}>{props.author} </div>
                 <div className={classes.PostCategory} onClick={props.categoryOnClick}>{props.category}</div>
             </div>
-            <Link 
-                to={{
-                    pathname: "/post/" + props.id,
-                    state: {
-                        title: [props.title],
-                    }
-                }}
-                ><p className={classes.PostTitle}>{props.title}</p></Link>
+            <p className={classes.PostTitle}>{props.title}</p>
         </div>
     )
 }
 
-export default postListItem;
+export default PostListItem;

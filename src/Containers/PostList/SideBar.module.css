@@ -1,3 +1,4 @@
-.SideBar{
-    
+.Categorys{
+    display: flex;
+    flex-wrap: wrap;
 }

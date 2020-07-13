@@ -1,4 +1,5 @@
 .gitignore
+.firebase
 node_modules
 /build
 /src/constants/firebase.js

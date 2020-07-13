@@ -4,11 +4,14 @@
     /* box-shadow: 0px 0px 4px 0 rgba(0,0,0,0.2);
     margin: 15px 0; */
     box-sizing: border-box;
+    border-bottom: 1px solid #cfd8dc;
+    cursor: pointer;
 }
 
-.PostListItem {
-    border-bottom: 1px solid #cfd8dc;
+.PostListItem:hover {
+    box-shadow: inset 0 0 3px #cfd8dc;
 }
+
 
 .PostDetail {
     color: #4f5b62;
@@ -16,14 +19,22 @@
     margin: 0 0 15px 0;
 }
 
-.PostCategory{
+.PostCategory {
+    background-color: #fff;
+    color: black;
     border-radius: 5px;
     padding: 0 5px;
     border: 1px solid #4f5b62;
     font-size: smaller;
     margin: 0 0 15px 0;
     box-sizing: border-box;
+    transition: all 0.3s ease-out;
     cursor: pointer;
+}
+
+.PostCategory:hover {
+    background-color: #263238;
+    color: #fff;
 }
 
 .PostTitle {
