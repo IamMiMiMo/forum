@@ -43,6 +43,7 @@ const titleBar = (props) => {
             )
         }
     })
+
     return (
         <React.Fragment>
             <div id="titleBar" className={[classes.TitleBar, classes.Dark].join(' ')}>

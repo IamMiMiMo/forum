@@ -1,5 +1,5 @@
 import React, { useEffect, useState, memo } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import * as firebase from "firebase/app";
 
 import 'firebase/firebase-database';
@@ -24,20 +24,27 @@ const RightColumn = memo(() => {
         });
     }, [database])
 
+    let count = 0;
     let output = listOfCategory.map((item, index) => {
-        return <CategoryCard 
-                key={index}
-                icon={item.icon}
-                name={item.name}
-                count={item.postcount}
-                clicked={() => history.push(PATH.CATEGORY_PATH + '/' + index)}/>
+        count += item.postcount;
+        return <CategoryCard
+            key={index}
+            icon={item.icon}
+            name={item.name}
+            count={item.postcount}
+            clicked={() => history.push(PATH.CATEGORY_PATH + '/' + index)} />
     })
 
     return (
         <div className={classes.SideBar}>
             <div className={classes.Categorys}>
-            <h3 style={{textAlign: 'center'}}>分類</h3>
-                <Link to={PATH.POST_LIST_PATH}>全部</Link>
+                <h3 style={{ textAlign: 'center' }}>分類</h3>
+                <CategoryCard
+                    key='all'
+                    icon="https://image.flaticon.com/icons/svg/2928/2928865.svg"
+                    name='全部'
+                    count={count}
+                    clicked={() => history.push(PATH.POST_LIST_PATH)} />
                 {output}
             </div>
         </div>

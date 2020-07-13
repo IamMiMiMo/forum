@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import * as firebase from "firebase/app";
 
@@ -21,6 +21,7 @@ const PostList = (props) => {
     const [showSideDrawer, setShowSideDrawer] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [categoryList, setCategoryList] = useState([]);
+    const [titleBar, setTitleBar] = useState();
     const history = useHistory();
     const match = useRouteMatch();
     const postArray = [];
@@ -116,7 +117,7 @@ const PostList = (props) => {
                 id={item.postId}
                 category={item.categoryName}
                 categoryOnClick={(e) => {
-                    if (!e) { e = window.event};
+                    if (!e) { e = window.event };
                     e.cancelBubble = true;
                     if (e.stopPropagation) e.stopPropagation();
                     history.push(PATH.CATEGORY_PATH + '/' + item.categoryId);
@@ -124,18 +125,10 @@ const PostList = (props) => {
         )
     })
 
-    let titleBar = useRef();
     useEffect(() => {
         if (categoryList.length > 0) {
-            titleBar.current = <TitleBar
-                left={[{ icon: faBars, onClick: () => setShowSideDrawer(!showSideDrawer) }]}
-                right={[{ icon: faSignInAlt, onClick: () => history.push(PATH.AUTH_PATH) }]}
-                sideDrawerShow={showSideDrawer}
-                sideDrawerOnClose={() => setShowSideDrawer(!showSideDrawer)}>
-                {notCategory ? '主頁' : categoryList[+match.params.categoryId].name}</TitleBar>
-            // {notCategory ? '主頁' : match.params.categoryId}</TitleBar>
             if (isAuth) {
-                titleBar.current = <TitleBar
+                setTitleBar(<TitleBar
                     left={[{ icon: faBars, onClick: () => setShowSideDrawer(!showSideDrawer) }]}
                     right={[
                         { icon: faPlus, onClick: () => history.push(PATH.NEW_POST_PATH) },
@@ -144,8 +137,14 @@ const PostList = (props) => {
                     sideDrawerShow={showSideDrawer}
                     sideDrawerOnClose={() => setShowSideDrawer(!showSideDrawer)}>
                     {notCategory ? '主頁' : categoryList[+match.params.categoryId].name}
-                    {/* {notCategory ? '主頁' : match.params.categoryId} */}
-                </TitleBar>
+                </TitleBar>)
+            } else {
+                setTitleBar(<TitleBar
+                    left={[{ icon: faBars, onClick: () => setShowSideDrawer(!showSideDrawer) }]}
+                    right={[{ icon: faSignInAlt, onClick: () => history.push(PATH.AUTH_PATH) }]}
+                    sideDrawerShow={showSideDrawer}
+                    sideDrawerOnClose={() => setShowSideDrawer(!showSideDrawer)}>
+                    {notCategory ? '主頁' : categoryList[+match.params.categoryId].name}</TitleBar>)
             }
         }
     }, [categoryList, isAuth, history, match.params.categoryId, notCategory, showSideDrawer, signOut])
@@ -153,7 +152,7 @@ const PostList = (props) => {
     return (
         <React.Fragment>
             {showAlert.show && <Alert type={showAlert.type} code={showAlert.code}>{showAlert.content}</Alert>}
-            {titleBar.current}
+            {titleBar}
             <div className={classes.MainContent}>
                 <div className={classes.LeftColumn}>
                     <div className={classes.PostList}>
