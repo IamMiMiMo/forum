@@ -30,6 +30,7 @@ const CreatePost = (props) => {
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
     const [selectOptions, setSelectOptions] = useState({});
     const [selected, setSelected] = useState(0);
+    const [disableSubmitButton, setDisableSubmitButton] = useState(false);
 
     const history = useHistory();
     const id = useRef();
@@ -63,7 +64,6 @@ const CreatePost = (props) => {
     useEffect(() => {
         database.ref(`posts/category`).once('value').then((snapshot) => {
             if (snapshot.exists()) {
-                console.log(snapshot.val())
                 let temp = snapshot.val().map((item, index) => {
                     return {
                         value: index,
@@ -119,7 +119,6 @@ const CreatePost = (props) => {
     }
 
     const readAndUpdatePostCounter = (postId) => {
-        console.log(selected)
         database.ref(`posts/category/${selected}`).once('value').then((snapshot) => {
             if (snapshot.exists()) {
                 database.ref(`posts/category/${selected}`)
@@ -156,6 +155,7 @@ const CreatePost = (props) => {
 
     const submitPostHandler = () => {
         if (currentTitle.trim().length !== 0 && currentText.trim().length !== 0) {
+            setDisableSubmitButton(true);
             getNextPostId()
         } else {
             showAlertHandler({ type: 'Danger', content: '未發表，請確保標題和內文並非空白！' })
@@ -233,13 +233,15 @@ const CreatePost = (props) => {
                         submitHandler={submitPostHandler}
                         previewHandler={onPreviewHandler}
                         keyPress={(event) => onKeyPress(event)}
-                        key="textarea" />
+                        key="textarea"
+                        disableSubmitButton={disableSubmitButton} />
                     :
                     <CommentTextarea
                         submitHandler={submitPostHandler}
                         editorState={editorState}
                         onEditorStateChange={onEditorStateChange}
                         key="textarea"
+                        disableSubmitButton={disableSubmitButton}
                     />
                 }
             </div>

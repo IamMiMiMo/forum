@@ -61,7 +61,7 @@ const CommentTextarea = (props) => {
                         }
                     </div>
                     <Button type={"Warning"} onClick={props.previewHandler}>{props.preview ? '編輯' : '預覽'}</Button>
-                    <Button type={"Success"} onClick={props.submitHandler}>發表</Button>
+                    <Button type={"Success"} onClick={props.submitHandler} disabled={props.disableSubmitButton}>發表</Button>
                 </form>
                 :
                 <React.Fragment>
@@ -103,7 +103,7 @@ const CommentTextarea = (props) => {
                             }
                         }}
                     />
-                    <Button type={"Success"} onClick={props.submitHandler}>發表</Button>
+                    <Button type={"Success"} onClick={props.submitHandler} disabled={props.disableSubmitButton}>發表</Button>
                 </React.Fragment>
             }
         </React.Fragment>

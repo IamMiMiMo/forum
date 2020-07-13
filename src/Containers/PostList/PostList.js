@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import * as firebase from "firebase/app";
 
@@ -22,9 +22,9 @@ const PostList = (props) => {
     const [showAlert, setShowAlert] = useState(false);
     const [categoryList, setCategoryList] = useState([]);
     const [titleBar, setTitleBar] = useState();
+    const [posts, setPosts] = useState();
     const history = useHistory();
     const match = useRouteMatch();
-    const posts = useRef();
 
     // Initialize Firebase
 
@@ -64,13 +64,13 @@ const PostList = (props) => {
     }
 
     useEffect(() => {
-        setListOfPost({});
         var listOfPostRef = database.ref('posts/postList');
         if (notCategory) {
             listOfPostRef.on('value', (snapshot) => {//set up load all post listener
                 if (snapshot.exists()) {
                     setListOfPost(snapshot.val());
                 } else {
+                    setListOfPost({})
                     showAlertHandler({ type: 'Danger', content: '冇Post喎' });
                 }
             });
@@ -79,6 +79,7 @@ const PostList = (props) => {
                 if (snapshot.exists()) {
                     setListOfPost(snapshot.val());
                 } else {
+                    setListOfPost({})
                     showAlertHandler({ type: 'Danger', content: '冇呢個分類或者冇Post喎' });
                 }
             });
@@ -103,8 +104,8 @@ const PostList = (props) => {
                         categoryName: snapshot.val()[listOfPost[key].category].name
                     })
                 }
-            
-                posts.current = postArray.reverse().map(item => {
+
+                setPosts(postArray.reverse().map(item => {
                     return (
                         <PostListItem
                             key={item.postId}
@@ -119,12 +120,12 @@ const PostList = (props) => {
                                 history.push(PATH.CATEGORY_PATH + '/' + item.categoryId);
                             }} />
                     )
-                })
+                }))
             } else {
                 showAlertHandler({ type: 'Danger', content: '冇任何分類喎' });
             }
         });
-    }, [database,history,listOfPost])
+    }, [database, history, listOfPost])
 
 
 
@@ -159,9 +160,9 @@ const PostList = (props) => {
             <div className={classes.MainContent}>
                 <div className={classes.LeftColumn}>
                     <div className={classes.PostList}>
-                        {posts.current ?
+                        {posts ?
                             <div className={classes.Posts}>
-                                {posts.current}
+                                {posts}
                             </div>
                             : <Spinner />}
                     </div>
