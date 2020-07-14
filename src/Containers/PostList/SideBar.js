@@ -7,7 +7,7 @@ import * as classes from './SideBar.module.css';
 import * as PATH from '../../constants/paths';
 import CategoryCard from '../../Components/UI/CategoryCard/CategoryCard';
 
-const RightColumn = memo(() => {
+const RightColumn = memo((props) => {
 
     const [listOfCategory, setListOfCategory] = useState([]);
     const database = firebase.database();
@@ -32,7 +32,10 @@ const RightColumn = memo(() => {
             icon={item.icon}
             name={item.name}
             count={item.postcount}
-            clicked={() => history.push(PATH.CATEGORY_PATH + '/' + index)} />
+            clicked={() => {
+                props.setLoading()
+                history.push(PATH.CATEGORY_PATH + '/' + index)}
+            } />
     })
 
     return (
@@ -44,7 +47,10 @@ const RightColumn = memo(() => {
                     icon="https://image.flaticon.com/icons/svg/2928/2928865.svg"
                     name='全部'
                     count={count}
-                    clicked={() => history.push(PATH.POST_LIST_PATH)} />
+                    clicked={() => {
+                        props.setLoading()
+                        history.push(PATH.POST_LIST_PATH)}
+                    } />
                 {output}
             </div>
         </div>

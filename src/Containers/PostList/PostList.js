@@ -20,6 +20,7 @@ const PostList = (props) => {
     const [listOfPost, setListOfPost] = useState({});
     const [showSideDrawer, setShowSideDrawer] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [categoryList, setCategoryList] = useState([]);
     const [titleBar, setTitleBar] = useState();
     const [posts, setPosts] = useState();
@@ -73,6 +74,7 @@ const PostList = (props) => {
                     setListOfPost({})
                     showAlertHandler({ type: 'Danger', content: '冇Post喎' });
                 }
+                setIsLoading(false);
             });
         } else {
             listOfPostRef.orderByChild("category").equalTo(+match.params.categoryId).on("value", (snapshot) => {//set up load category post listener
@@ -82,6 +84,7 @@ const PostList = (props) => {
                     setListOfPost({})
                     showAlertHandler({ type: 'Danger', content: '冇呢個分類或者冇Post喎' });
                 }
+                setIsLoading(false);
             });
         }
 
@@ -160,15 +163,17 @@ const PostList = (props) => {
             <div className={classes.MainContent}>
                 <div className={classes.LeftColumn}>
                     <div className={classes.PostList}>
-                        {posts ?
+                        {!isLoading ?
                             <div className={classes.Posts}>
-                                {posts}
+                                {posts !== undefined && posts.length > 0  ? 
+                                    posts
+                                : <p style={{textAlign: 'center', padding: '15px'}}>無Post喎</p>}
                             </div>
                             : <Spinner />}
                     </div>
                 </div>
                 <div className={classes.RightColumn}>
-                    <SideBar></SideBar>
+                    <SideBar setLoading={() => setIsLoading(true)}></SideBar>
                 </div>
             </div>
 
